@@ -75,6 +75,24 @@
         </dependency>
     </dependencies>
 
+
+    <!--<profiles>
+        <profile>
+            <id>main</id>
+            <properties>
+                <start-class>com.example.clientapp.ClientAppApplication</start-class>
+                <finalName>main-app</finalName>
+            </properties>
+        </profile>
+        <profile>
+            <id>module</id>
+            <properties>
+                <start-class>com.example.clientapp.ClientAppApplication</start-class>
+                <finalName>module-app</finalName>
+            </properties>
+        </profile>
+    </profiles>-->
+
     <build>
         <plugins>
             <plugin>
@@ -87,6 +105,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+<!--                    <finalName>${finalName}</finalName>-->
                 </configuration>
             </plugin>
         </plugins>

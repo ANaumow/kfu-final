@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Component
+@ConditionalOnProperty(value = "module.enabled", matchIfMissing = true, havingValue = "true")
 public class ModularAnnotationPostProcessor implements
         BeanPostProcessor, BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
@@ -83,17 +85,16 @@ public class ModularAnnotationPostProcessor implements
 
             boolean needsToProxy = needsToProxy(beanClass, beanModuleName);
 
-            if (!needsToProxy) {
-                continue;
+            if (needsToProxy) {
+                String factoryBeanName = RemoteModuleFactoryBean.class.getName();
+                BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(factoryBeanName);
+
+                definitionBuilder.addConstructorArgValue(beanClass);
+                definitionBuilder.addConstructorArgValue(beanModuleName);
+
+                registry.removeBeanDefinition(beanDefinitionName);
+                registry.registerBeanDefinition(beanDefinitionName, definitionBuilder.getBeanDefinition());
             }
-            String factoryBeanName = RemoteModuleFactoryBean.class.getName();
-            BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(factoryBeanName);
-
-            definitionBuilder.addConstructorArgValue(beanClass);
-            definitionBuilder.addConstructorArgValue(beanModuleName);
-
-            registry.removeBeanDefinition(beanDefinitionName);
-            registry.registerBeanDefinition(beanDefinitionName, definitionBuilder.getBeanDefinition());
         }
     }
 

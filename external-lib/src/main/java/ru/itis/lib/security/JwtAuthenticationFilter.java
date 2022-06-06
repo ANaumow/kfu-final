@@ -28,7 +28,26 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+
+        token = request.getHeader("Authorization");
+
+        try {
+            Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token);
+        } catch (Exception e) {
+            throw new AuthenticationCredentialsNotFoundException("Bad token");
+        }
+
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+
     public static String token;
+
 
     @PostConstruct
     public void init() {
@@ -42,25 +61,5 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         System.out.println(token);
     }
 
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-                         FilterChain filterChain) throws IOException, ServletException {
-        // преобразуем запрос в HTTP
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        // получаем токен
-        token = request.getHeader("Authorization");
 
-        try {
-            Claims claims = Jwts.parser()
-                                .setSigningKey(secret)
-                                .parseClaimsJws(token)
-                                .getBody();
-        } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("Bad token");
-        }
-
-
-        // отправили запрос дальше
-        filterChain.doFilter(servletRequest, servletResponse);
-    }
 }

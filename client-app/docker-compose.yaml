@@ -1,0 +1,78 @@
+version: "3"
+
+services:
+
+  module-main:
+    image: 127.0.0.1:5000/client-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar
+    ports:
+      - "8081:8081"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    depends_on:
+      - module-calculation
+
+  monolith-main:
+    image: 127.0.0.1:5000/client-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar --module.enabled=false
+    ports:
+      - "8181:8181"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    depends_on:
+      - module-calculation
+
+  module-calculation:
+    image: 127.0.0.1:5000/client-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar --module.name=some-module --server.port=8082
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    ports:
+      - "8082:8082"
+
+  module-calculation-2:
+    image: 127.0.0.1:5000/client-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar --module.name=some-module --server.port=8083
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    ports:
+      - "8083:8083"
+
+
+  module-calculation-3:
+    image: 127.0.0.1:5000/client-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar --module.name=some-module --server.port=8084
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    ports:
+      - "8084:8084"
