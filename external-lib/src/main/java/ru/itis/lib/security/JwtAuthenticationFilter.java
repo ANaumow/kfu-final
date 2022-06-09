@@ -31,17 +31,17 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-
-        token = request.getHeader("Authorization");
-
-        try {
-            Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token);
-        } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("Bad token");
-        }
+//        HttpServletRequest request = (HttpServletRequest) servletRequest;
+//
+//        token = request.getHeader("Authorization");
+//
+//        try {
+//            Jwts.parser()
+//                .setSigningKey(secret)
+//                .parseClaimsJws(token);
+//        } catch (Exception e) {
+//            throw new AuthenticationCredentialsNotFoundException("Bad token");
+//        }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                            .signWith(SignatureAlgorithm.HS256, secret) // подписываем его с нашим secret
                            .compact();
 
-        System.out.println(token);
+        System.out.println(123);
     }
 
 

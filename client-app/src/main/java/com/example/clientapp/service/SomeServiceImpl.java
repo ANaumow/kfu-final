@@ -1,14 +1,20 @@
 package com.example.clientapp.service;
 
 import com.example.clientapp.dto.ResponseDto;
+import com.example.clientapp.entity.Product;
 import com.example.clientapp.entity.Request;
 import com.example.clientapp.repo.RequestRepository;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itis.lib.Modular;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.time.Instant;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -21,11 +27,6 @@ public class SomeServiceImpl implements SomeService {
 
     public SomeServiceImpl() {
         System.out.println("SomeServiceImpl");
-    }
-
-    @PostConstruct
-    public void init() {
-        System.out.println("init");
     }
 
     public String version() {
@@ -50,7 +51,6 @@ public class SomeServiceImpl implements SomeService {
             }
             sum += sum2;
         }
-
 
         return new ResponseDto(sum + "");
     }

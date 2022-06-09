@@ -1,6 +1,54 @@
-version: "3"
+version: '3.7'
 
 services:
+
+#  cadvisor:
+#    image: google/cadvisor:latest
+#    ports:
+#      - "9080:8080"
+#    volumes:
+#      - ./cadvisor:/rootfs
+#      - ./cadvisor/var/run:/var/run
+#      - ./cadvisor/sys:/sys
+#      - ./cadvisor/var/lib/docker/:/var/lib/docker
+#      - ./cadvisor/dev/disk/:/dev/disk
+
+  grafana:
+    build: './config/grafana'
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+#      - ./my-temp:/etc
+      - ./config/custom.ini:/etc/grafana/grafana.ini
+#      - ./my-temp:/etc/grafana/
+
+#    environment:
+#      GF_SECURITY_ADMIN_USER: user
+#      GF_SECURITY_ADMIN_PASSWORD: 1234
+#      - GF_SECURITY_ADMIN_USER=admin1
+#      - GF_SECURITY_ADMIN_PASSWORD=admin1
+#      - GF_Security_AdminUser=admin1
+#      - GF_Security_AdminPassword=admin1
+#      - GF_Dashboards_MinRefreshInterval=1s
+
+
+
+    networks:
+      monitoring:
+        aliases:
+          - grafana
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/prometheus
+    networks:
+      monitoring:
+        aliases:
+          - prometheus
 
   module-main:
     image: 127.0.0.1:5000/client-app
@@ -23,7 +71,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: java -jar /app.jar --module.enabled=false
+    command: java -jar /app.jar --module.enabled=false --server.port=8181
     ports:
       - "8181:8181"
     deploy:
@@ -76,3 +124,10 @@ services:
           memory: 1G
     ports:
       - "8084:8084"
+
+
+networks:
+  monitoring:
+
+volumes:
+  prometheus:

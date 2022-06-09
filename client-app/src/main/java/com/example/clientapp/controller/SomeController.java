@@ -3,6 +3,8 @@ package com.example.clientapp.controller;
 import com.example.clientapp.dto.ResponseDto;
 import com.example.clientapp.entity.Request;
 import com.example.clientapp.repo.RequestRepository;
+import com.example.clientapp.service.ProductInfo;
+import com.example.clientapp.service.ProductService;
 import com.example.clientapp.service.SomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,9 @@ public class SomeController {
 
     @Autowired
     SomeService someService;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     RequestRepository requestRepository;
@@ -39,5 +44,11 @@ public class SomeController {
 
         return result;
     }
+
+    @GetMapping("/info")
+    public ProductInfo getInfo() {
+        return productService.getProductInfo();
+    }
+
 
 }
