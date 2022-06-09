@@ -31,6 +31,8 @@ services:
           memory: 1G
     depends_on:
       - module-calculation
+      - module-calculation-2
+      - module-calculation-3
 
 
   module-calculation:
