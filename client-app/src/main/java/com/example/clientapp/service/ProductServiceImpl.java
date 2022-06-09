@@ -2,43 +2,36 @@ package com.example.clientapp.service;
 
 import com.example.clientapp.entity.Product;
 import com.example.clientapp.repo.ProductRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.itis.lib.Modular;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.function.Supplier;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
-@Modular(name = "some-module")
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public ProductInfo getProductInfo() {
-
         List<Product> products = productRepository.findAll();
 
-        Integer sum = products.stream().map(Product::getCost).reduce(0, Integer::sum);
+        Integer sum = products.stream()
+                              .map(Product::getCost)
+                              .reduce(0, Integer::sum);
 
-        TreeMap<String, Integer> treeMap = products.stream().collect(
-                (Supplier<TreeMap<String, Integer>>) TreeMap::new,
-                (map, product) -> {
-                    map.putIfAbsent(product.getName(), 0);
-                    map.computeIfPresent(product.getName(), (name, val) -> val + 1);
-                },
-                TreeMap::putAll
-        );
+        Map<String, Long> treeMap = products.stream()
+                                            .collect(Collectors.groupingBy(Product::getName, Collectors.counting()));
 
-        treeMap.entrySet().forEach(s -> {
-            System.out.println(s.getKey());
-            System.out.println(s.getValue());
-        });
+        List<String> top = treeMap.entrySet().stream()
+                                  .sorted(Entry.comparingByValue())
+                                  .map(Entry::getKey)
+                                  .collect(Collectors.toList());
 
-        return new ProductInfo(sum, new ArrayList<>());
+        return new ProductInfo(sum, top);
     }
 }
