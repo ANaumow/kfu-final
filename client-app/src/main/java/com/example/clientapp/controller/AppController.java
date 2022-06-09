@@ -5,16 +5,16 @@ import com.example.clientapp.entity.Request;
 import com.example.clientapp.repo.RequestRepository;
 import com.example.clientapp.service.ProductInfo;
 import com.example.clientapp.service.ProductService;
-import com.example.clientapp.service.SomeService;
+import com.example.clientapp.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class SomeController {
+public class AppController {
 
     @Autowired
-    SomeService someService;
+    AppService appService;
 
     @Autowired
     ProductService productService;
@@ -24,7 +24,7 @@ public class SomeController {
 
     @GetMapping("/some")
     public ResponseDto some() {
-        return someService.getResponse();
+        return appService.getResponse();
     }
 
     @GetMapping("/repo")
@@ -36,7 +36,7 @@ public class SomeController {
     public ResponseDto calc() {
         long start = System.nanoTime();
 
-        ResponseDto result = someService.calc();
+        ResponseDto result = appService.calc();
 
         long finish = System.nanoTime();
 
