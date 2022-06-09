@@ -14,25 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
 
     @Autowired
-    AppService appService;
+    private ProductService productService;
 
-    @Autowired
-    ProductService productService;
-
-    @Autowired
-    RequestRepository requestRepository;
-
-    @GetMapping("/some")
-    public ResponseDto some() {
-        return appService.getResponse();
+    @GetMapping("/info")
+    public ProductInfo getInfo() {
+        return productService.getProductInfo();
     }
 
-    @GetMapping("/repo")
-    public Request repo() {
-        return requestRepository.getById(1L);
-    }
-
-    @GetMapping("/calc")
+    @GetMapping("/client/calc")
     public ResponseDto calc() {
         long start = System.nanoTime();
 
@@ -45,10 +34,29 @@ public class MainController {
         return result;
     }
 
-    @GetMapping("/info")
-    public ProductInfo getInfo() {
-        return productService.getProductInfo();
+    @GetMapping("/client/purchase")
+    public ResponseDto some() {
+        return appService.getResponse();
     }
+
+    @GetMapping("/client/request")
+    public Request repo() {
+        return requestRepository.getById(1L);
+    }
+
+
+
+
+    @Autowired
+    AppService appService;
+
+    @Autowired
+    RequestRepository requestRepository;
+
+
+
+
+
 
 
 }
