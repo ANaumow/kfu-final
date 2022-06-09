@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: java -jar /app.jar --module.name=some-module --server.port=8082
+    command: java -jar /app.jar --module.name=product-module --server.port=8082
     deploy:
       resources:
         limits:
@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: java -jar /app.jar --module.name=some-module --server.port=8083
+    command: java -jar /app.jar --module.name=product-module --server.port=8083
     deploy:
       resources:
         limits:
@@ -67,7 +67,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: java -jar /app.jar --module.name=some-module --server.port=8084
+    command: java -jar /app.jar --module.name=product-module --server.port=8084
     deploy:
       resources:
         limits:
