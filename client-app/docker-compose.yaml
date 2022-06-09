@@ -2,6 +2,20 @@ version: '3.7'
 
 services:
 
+    monolith-main:
+      container_name: monolith
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: java -jar /app.jar --module.enabled=false --server.port=8181
+      ports:
+        - "8081:8081"
+      deploy:
+        resources:
+          limits:
+            cpus: '1'
+            memory: 1G
+
   module-main:
     container_name: module_main
     build:
@@ -18,21 +32,6 @@ services:
     depends_on:
       - module-calculation
 
-  monolith-main:
-    container_name: monolith
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: java -jar /app.jar --module.enabled=false --server.port=8181
-    ports:
-      - "8181:8181"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-    depends_on:
-      - module-calculation
 
   module-calculation:
     container_name: module_product_1
@@ -124,6 +123,21 @@ services:
       monitoring:
         aliases:
           - prometheus
+
+#  monolith-main:
+#    container_name: monolith
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    command: java -jar /app.jar --module.enabled=false --server.port=8181
+#    ports:
+#      - "8181:8181"
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: 1G
+
 
 
 networks:
