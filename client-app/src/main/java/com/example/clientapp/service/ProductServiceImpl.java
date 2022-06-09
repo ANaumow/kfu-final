@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 @Component
-@Modular(name = "product-module")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
