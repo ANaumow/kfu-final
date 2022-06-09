@@ -21,6 +21,16 @@ public class MainController {
         return productService.getProductInfo();
     }
 
+    @GetMapping("/client/purchase")
+    public ResponseDto some() {
+        return appService.getResponse();
+    }
+
+    @GetMapping("/client/request")
+    public Request repo() {
+        return requestRepository.getById(1L);
+    }
+
     @GetMapping("/client/calc")
     public ResponseDto calc() {
         long start = System.nanoTime();
@@ -33,19 +43,6 @@ public class MainController {
 
         return result;
     }
-
-    @GetMapping("/client/purchase")
-    public ResponseDto some() {
-        return appService.getResponse();
-    }
-
-    @GetMapping("/client/request")
-    public Request repo() {
-        return requestRepository.getById(1L);
-    }
-
-
-
 
     @Autowired
     AppService appService;
