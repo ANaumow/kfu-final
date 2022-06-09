@@ -4,6 +4,7 @@ import com.example.clientapp.entity.Product;
 import com.example.clientapp.repo.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.itis.lib.Modular;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 @Component
+@Modular(name = "product-module")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired

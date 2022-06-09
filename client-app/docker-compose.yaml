@@ -2,19 +2,19 @@ version: '3.7'
 
 services:
 
-    monolith-main:
-      container_name: monolith
-      build:
-        context: .
-        dockerfile: Dockerfile
-      command: java -jar /app.jar --module.enabled=false --server.port=8181
-      ports:
-        - "8081:8081"
-      deploy:
-        resources:
-          limits:
-            cpus: '1'
-            memory: 1G
+  monolith-main:
+    container_name: monolith
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: java -jar /app.jar --server.port=8181
+    ports:
+      - "8181:8181"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
 
   module-main:
     container_name: module_main
