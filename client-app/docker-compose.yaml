@@ -2,56 +2,8 @@ version: '3.7'
 
 services:
 
-#  cadvisor:
-#    image: google/cadvisor:latest
-#    ports:
-#      - "9080:8080"
-#    volumes:
-#      - ./cadvisor:/rootfs
-#      - ./cadvisor/var/run:/var/run
-#      - ./cadvisor/sys:/sys
-#      - ./cadvisor/var/lib/docker/:/var/lib/docker
-#      - ./cadvisor/dev/disk/:/dev/disk
-
-  grafana:
-    build: './config/grafana'
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./grafana:/var/lib/grafana
-#      - ./my-temp:/etc
-      - ./config/custom.ini:/etc/grafana/grafana.ini
-#      - ./my-temp:/etc/grafana/
-
-#    environment:
-#      GF_SECURITY_ADMIN_USER: user
-#      GF_SECURITY_ADMIN_PASSWORD: 1234
-#      - GF_SECURITY_ADMIN_USER=admin1
-#      - GF_SECURITY_ADMIN_PASSWORD=admin1
-#      - GF_Security_AdminUser=admin1
-#      - GF_Security_AdminPassword=admin1
-#      - GF_Dashboards_MinRefreshInterval=1s
-
-
-
-    networks:
-      monitoring:
-        aliases:
-          - grafana
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus:/prometheus
-    networks:
-      monitoring:
-        aliases:
-          - prometheus
-
   module-main:
-    image: 127.0.0.1:5000/client-app
+    container_name: module_main
     build:
       context: .
       dockerfile: Dockerfile
@@ -67,7 +19,7 @@ services:
       - module-calculation
 
   monolith-main:
-    image: 127.0.0.1:5000/client-app
+    container_name: monolith
     build:
       context: .
       dockerfile: Dockerfile
@@ -83,7 +35,7 @@ services:
       - module-calculation
 
   module-calculation:
-    image: 127.0.0.1:5000/client-app
+    container_name: module_product_1
     build:
       context: .
       dockerfile: Dockerfile
@@ -97,7 +49,7 @@ services:
       - "8082:8082"
 
   module-calculation-2:
-    image: 127.0.0.1:5000/client-app
+    container_name: module_product_2
     build:
       context: .
       dockerfile: Dockerfile
@@ -112,7 +64,7 @@ services:
 
 
   module-calculation-3:
-    image: 127.0.0.1:5000/client-app
+    container_name: module_product_3
     build:
       context: .
       dockerfile: Dockerfile
@@ -124,6 +76,54 @@ services:
           memory: 1G
     ports:
       - "8084:8084"
+
+  #  cadvisor:
+  #    image: google/cadvisor:latest
+  #    ports:
+  #      - "9080:8080"
+  #    volumes:
+  #      - ./cadvisor:/rootfs
+  #      - ./cadvisor/var/run:/var/run
+  #      - ./cadvisor/sys:/sys
+  #      - ./cadvisor/var/lib/docker/:/var/lib/docker
+  #      - ./cadvisor/dev/disk/:/dev/disk
+
+  grafana:
+    container_name: grafana
+    build: './config/grafana'
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+      #      - ./my-temp:/etc
+      - ./config/custom.ini:/etc/grafana/grafana.ini
+    #      - ./my-temp:/etc/grafana/
+
+    #    environment:
+    #      GF_SECURITY_ADMIN_USER: user
+    #      GF_SECURITY_ADMIN_PASSWORD: 1234
+    #      - GF_SECURITY_ADMIN_USER=admin1
+    #      - GF_SECURITY_ADMIN_PASSWORD=admin1
+    #      - GF_Security_AdminUser=admin1
+    #      - GF_Security_AdminPassword=admin1
+    #      - GF_Dashboards_MinRefreshInterval=1s
+
+    networks:
+      monitoring:
+        aliases:
+          - grafana
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/prometheus
+    networks:
+      monitoring:
+        aliases:
+          - prometheus
 
 
 networks:
