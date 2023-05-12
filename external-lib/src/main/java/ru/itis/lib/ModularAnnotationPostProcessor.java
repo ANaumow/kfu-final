@@ -13,10 +13,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
-import java.util.Locale;
 import java.util.Objects;
 
 @Component
@@ -27,51 +25,29 @@ public class ModularAnnotationPostProcessor implements
     @Setter
     private ApplicationContext applicationContext;
 
-    private String appModuleName;
-    private String applicationPackage;
+    private String currentModuleName;
+    private String packageToScan;
 
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-
-        if (bean instanceof RemoteModuleFactoryBean || !(bean instanceof FactoryBean)) {
-            return bean;
-        }
-
-        FactoryBean<?> factoryBean = (FactoryBean<?>) bean;
-        Class<?> beanClass = factoryBean.getObjectType();
-        if (beanClass == null) {
-            return bean;
-        }
-
-        String beanModuleName = defineModuleName(beanClass);
-        if (!needsToProxy(beanClass, beanModuleName)) {
-            return bean;
-        }
-
-        RemoteModuleFactoryBean remoteModuleFactoryBean = new RemoteModuleFactoryBean(beanClass, beanModuleName);
-
-        remoteModuleFactoryBean.setBeanName(beanName);
-        remoteModuleFactoryBean.setApplicationContext(applicationContext);
-
-        return remoteModuleFactoryBean;
-    }
-
+    /**
+     * Ищет BeanDefinition'ы, бины которых нужно запроксировать.
+     * По информации в BeanDefinition определяем нужно ли в этом экземпляре
+     * приложения создавать этот бин, если да заменяем этот BeanDefinition
+     * на новый BeanDefinition, на основе RemoteModuleFactoryBean,
+     * этот FactoryBean создаст прокси-бин
+     * во время последующей инициализации контекста
+     */
     @SneakyThrows
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-        appModuleName = applicationContext.getEnvironment().getProperty("module.name");
-        applicationPackage = applicationContext.getEnvironment().getProperty("module.package-to-scan");
+        currentModuleName = applicationContext.getEnvironment().getProperty("module.name");
+        packageToScan = applicationContext.getEnvironment().getProperty("module.package-to-scan");
 
-        Objects.requireNonNull(applicationPackage);
-        Objects.requireNonNull(appModuleName);
+        Objects.requireNonNull(packageToScan);
+        Objects.requireNonNull(currentModuleName);
 
         for (String beanDefinitionName : registry.getBeanDefinitionNames()) {
             BeanDefinition beanDefinition = registry.getBeanDefinition(beanDefinitionName);
-
-            if (beanDefinitionName.toLowerCase(Locale.ROOT).equals("requestrepository")) {
-                System.out.println();
-            }
 
             String beanClassName = beanDefinition.getBeanClassName();
             if (beanClassName == null) {
@@ -98,13 +74,26 @@ public class ModularAnnotationPostProcessor implements
         }
     }
 
+    /**
+     * Определяет нужно ли создавать прокси-бин для конкретного бина
+     * @param beanClass класс бина, который проверяем
+     * @param beanModuleName называние модуля в аннотации @Modular
+     * @return нужно ли создавать
+     */
     private boolean needsToProxy(Class<?> beanClass, String beanModuleName) {
-        boolean isClientBean = beanClass.getName().startsWith(applicationPackage);
-        boolean isBeanForCurrentModule = Objects.equals(appModuleName, beanModuleName);
+        boolean isClientBean = beanClass.getName().startsWith(packageToScan);
+        boolean isBeanForCurrentModule = Objects.equals(currentModuleName, beanModuleName);
 
         return isClientBean && !isBeanForCurrentModule;
     }
 
+    /**
+     * Считывает из аннотации @Modular название модуля,
+     * если аннотации нет - возвращает "main", тоесть такие бины
+     * должны создаваться в главном приложении
+     * @param beanClass класс бина
+     * @return название модуля в котором нужно запустить бин
+     */
     private String defineModuleName(Class<?> beanClass) {
         String beanModuleName;
         if (beanClass.isAnnotationPresent(Modular.class)) {
@@ -115,8 +104,40 @@ public class ModularAnnotationPostProcessor implements
         return beanModuleName;
     }
 
+    /**
+     * Проксирование для случаев когда бин который, нужно проксировать создается
+     * через другой FactoryBean, и не был обработан во время инициализии BeanDefenitionRegistry,
+     * такие случаи возникают например для генерируемых репозиториев Spring Data Jpa,
+     * тогда считываем класс бина из FactoryBean и проксируем если нужно
+     */
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+
+        if (bean instanceof RemoteModuleFactoryBean || !(bean instanceof FactoryBean)) {
+            return bean;
+        }
+
+        FactoryBean<?> factoryBean = (FactoryBean<?>) bean;
+        Class<?> beanClass = factoryBean.getObjectType();
+        if (beanClass == null) {
+            return bean;
+        }
+
+        String beanModuleName = defineModuleName(beanClass);
+        if (!needsToProxy(beanClass, beanModuleName)) {
+            return bean;
+        }
+
+        RemoteModuleFactoryBean remoteModuleFactoryBean = new RemoteModuleFactoryBean(beanClass, beanModuleName);
+
+        remoteModuleFactoryBean.setBeanName(beanName);
+        remoteModuleFactoryBean.setApplicationContext(applicationContext);
+
+        return remoteModuleFactoryBean;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
 
     }
 }

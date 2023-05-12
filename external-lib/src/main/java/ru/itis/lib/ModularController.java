@@ -32,6 +32,11 @@ public class ModularController {
     @Autowired
     private ObjectMapper mapper;
 
+    /**
+     * Получаем запрос который нужно выполнить на данном экземпляре приложения
+     * @param remoteRequest информация о том, у какого бина и какой метод нужно вызывать
+     * @return возвращает ответ
+     */
     @PostMapping("/rpc")
     public RemoteResponse rpc(@RequestBody RemoteRequest remoteRequest) {
 
